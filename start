@@ -1,0 +1,6 @@
+echo Starting...
+
+pm2 start ecosystem.config.js > /dev/null 2>&1
+pm2 status
+pm2 flush
+pm2 logs
