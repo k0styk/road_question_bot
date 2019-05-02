@@ -1,13 +1,22 @@
 const config = require('./../config/config.js');
 const VkBot = require('node-vk-bot-api');
-const scenes = require('./scenes/scenes');
+const scenes1 = require('./scenes/scenes');
+const scenes = new scenes1();
 const Session = require('node-vk-bot-api/lib/session');
 
 const bot = new VkBot(config.getValue('token'));
 
+const session = new Session();
+bot.use(session.middleware());
+bot.use(scenes.meetStage.middleware());
+
 bot.command('/start', (ctx) => {
   ctx.reply('Hello!')
   log("Start command");
+});
+
+bot.command('/meet', (ctx) => {
+  ctx.scene.enter('meet');
 });
 
 bot.on((ctx) => {
@@ -15,21 +24,9 @@ bot.on((ctx) => {
   log("On event");
 })
 
-
-
 function log(message) {
   console.log(new Date().toLocaleTimeString()+": "+message);
 }
-
-console.log(scenes);
-
-const session = new Session();
-bot.use(session.middleware());
-bot.use(scenes.meetStage.middleware());
-
-bot.command('/meet', (ctx) => {
-  ctx.scene.enter('meet');
-});
 
 bot.startPolling();
 log("Bot started");
