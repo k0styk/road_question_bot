@@ -21,6 +21,8 @@ function log(message) {
   console.log(new Date().toLocaleTimeString()+": "+message);
 }
 
+console.log(scenes);
+
 const session = new Session();
 bot.use(session.middleware());
 bot.use(scenes.meetStage.middleware());
