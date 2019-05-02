@@ -1,5 +1,6 @@
 const config = require('./../config/config.js');
 const VkBot = require('node-vk-bot-api');
+const scenes = require('./scenes/scenes');
 
 const bot = new VkBot(config.getValue('token'));
 
@@ -13,7 +14,7 @@ bot.on((ctx) => {
   log("On event");
 })
 
-bot.startPolling();
+//bot.startPolling();
 log("Bot started");
 
 function log(message) {
@@ -36,3 +37,11 @@ function log(message) {
 //     is_hidden: false,
 //     type: 'message_new' },
 //
+
+console.log(scenes);
+//bot.use(session.middleware());
+//bot.use(stage.middleware());
+
+// bot.command('/meet', (ctx) => {
+//   ctx.scene.enter('meet');
+// });
