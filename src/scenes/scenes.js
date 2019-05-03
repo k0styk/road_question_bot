@@ -6,16 +6,14 @@ const Markup = require('node-vk-bot-api/lib/markup');
 class Scenes {
   
   constructor() {
-    this.register = new Scene('register',
+      this.register = new Scene('register',
         (ctx) => {
           ctx.scene.next();
           ctx.reply('Для регистрации нам необходимы данные о вас:\nВы являетесь учеником или сотрудником?', null, Markup
           .keyboard(
             [
-              Markup.button('Ученик','primary', {})
-            ],
-            [
-              Markup.button('Сотрудник','default', {})
+              Markup.button('Ученик','primary', {FOO: 'bar'}),
+              Markup.button('Сотрудник','default', {MEOW: 'meow'})
             ]
           )
           .oneTime());
@@ -33,6 +31,14 @@ class Scenes {
           ctx.scene.leave();
           ctx.reply(`Nice to meet you, ${ctx.session.name} (${ctx.session.age} years old)`);
         });
+
+      this.welcome = new Scene('welcome', 
+      (ctx) => {
+        // TODO проверка зарегистрирован ли пользователь
+        
+      });
+
+      
       this.registerStage = new Stage(this.register);
     } 
 };
