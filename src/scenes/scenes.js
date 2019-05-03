@@ -12,22 +12,22 @@ class Scenes {
           ctx.reply('Для регистрации нам необходимы данные о вас:\nВы являетесь учеником или сотрудником?', null, Markup
           .keyboard(
             [
-              Markup.button('Ученик','primary', {FOO: 'bar'}),
-              Markup.button('Сотрудник','default', {MEOW: 'meow'})
+              Markup.button('Ученик','primary', { user: 'student'}),
+              Markup.button('Сотрудник','default', {user: 'staff'})
             ]
           )
           .oneTime());
         },
         (ctx) => {
-          console.log(ctx);
-          ctx.session.isStudent = +ctx.message.text;
-  
+          const payload = JSON.parse(ctx.message.payload);
+          ctx.session.isStudent = payload.user == 'student' ? true : false;
           ctx.scene.next();
           ctx.reply('What is your name?');
         },
         (ctx) => {
           ctx.session.name = ctx.message.text;
-  
+          console.log(ctx.session.isStudent);
+          console.log(ctx.scene.step);
           ctx.scene.leave();
           ctx.reply(`Nice to meet you, ${ctx.session.name} (${ctx.session.age} years old)`);
         });
@@ -35,7 +35,7 @@ class Scenes {
       this.welcome = new Scene('welcome', 
       (ctx) => {
         // TODO проверка зарегистрирован ли пользователь
-        
+
       });
 
       
