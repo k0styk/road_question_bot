@@ -26,10 +26,23 @@ class Scenes {
         },
         (ctx) => {
           ctx.session.name = ctx.message.text;
-          console.log(ctx.session.isStudent);
+          if(ctx.session.isStudent) {
+            ctx.scene.step = 3;
+            ctx.scene.next();
+          } else {
+            ctx.scene.leave();
+            ctx.reply(`Nice to meet you, ${ctx.session.name} (${ctx.session.age} years old)`);
+          }
+        },
+        (ctx) => {
           console.log(ctx.scene.step);
           ctx.scene.leave();
-          ctx.reply(`Nice to meet you, ${ctx.session.name} (${ctx.session.age} years old)`);
+          ctx.reply('MEOW');
+        },
+        (ctx) => {
+          console.log(ctx.scene.step);
+          ctx.scene.leave();
+          ctx.reply('GAV');
         });
 
       this.welcome = new Scene('welcome', 
