@@ -33,7 +33,7 @@ class Scenes {
           ctx.scene.leave();
           ctx.reply(`Nice to meet you, ${ctx.session.name} (${ctx.session.age} years old)`);
         });
-      this.meetStage = new Stage(this.meet);
+      this.registerStage = new Stage(this.register);
     } 
 };
 

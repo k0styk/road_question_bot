@@ -1,22 +1,22 @@
 const config = require('./../config/config.js');
 const VkBot = require('node-vk-bot-api');
-const scenes1 = require('./scenes/scenes');
-const scenes = new scenes1();
+const Scenes = require('./scenes/scenes');
+const scenes = new Scenes();
 const Session = require('node-vk-bot-api/lib/session');
 
 const bot = new VkBot(config.getValue('token'));
 
 const session = new Session();
 bot.use(session.middleware());
-bot.use(scenes.meetStage.middleware());
+bot.use(scenes.registerStage.middleware());
 
 bot.command('/start', (ctx) => {
   ctx.reply('Hello!')
   log("Start command");
 });
 
-bot.command('/meet', (ctx) => {
-  ctx.scene.enter('meet');
+bot.command('/register', (ctx) => {
+  ctx.scene.enter('register');
 });
 
 bot.on((ctx) => {
