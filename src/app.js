@@ -31,8 +31,10 @@ bot.command('/register', (ctx) => {
 
 bot.on((ctx) => {
   log(" \"on\" event");
-  const payload = JSON.parse(ctx.message.payload);
-  console.log(payload);  
+  if(ctx.message.payload) {
+    const payload = JSON.parse(ctx.message.payload);
+    console.log(payload);
+  } 
 })
 
 function log(message) {
