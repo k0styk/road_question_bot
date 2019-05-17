@@ -3,6 +3,7 @@ const VkBot = require('node-vk-bot-api');
 const Scenes = require('./scenes/scenes');
 const scenes = new Scenes();
 const Session = require('node-vk-bot-api/lib/session');
+const Markup = require('node-vk-bot-api/lib/markup');
 
 const bot = new VkBot(config.getValue('token'));
 
