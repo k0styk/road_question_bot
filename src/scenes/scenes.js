@@ -6,11 +6,12 @@ const Markup = require('node-vk-bot-api/lib/markup');
 class Scenes {
   
   constructor() {
-      this.register = new Scene('register',
-        (ctx) => {
+      // register user
+      this.registerUser = new Scene('registerUser',
+        (ctx) => {  // 0
           ctx.scene.next();
-          ctx.reply('Для регистрации нам необходимы данные о вас:\nВы являетесь учеником или сотрудником?', null, Markup
-          .keyboard(
+          ctx.reply('Для регистрации нам необходимы данные о вас:\nВы являетесь учеником или сотрудником?', 
+          null, Markup.keyboard(
             [
               Markup.button('Ученик','primary', { user: 'student'}),
               Markup.button('Сотрудник','default', {user: 'staff'})
@@ -18,31 +19,30 @@ class Scenes {
           )
           .oneTime());
         },
-        (ctx) => {
+        (ctx) => {  // 1
           const payload = JSON.parse(ctx.message.payload);
           ctx.session.isStudent = payload.user == 'student' ? true : false;
-          ctx.scene.next();
-          ctx.reply('What is your name?');
-        },
-        (ctx) => {
-          ctx.session.name = ctx.message.text;
           if(ctx.session.isStudent) {
-            ctx.scene.step = 3;
-            ctx.scene.next();
-          } else {
-            ctx.scene.leave();
-            ctx.reply(`Nice to meet you, ${ctx.session.name} (${ctx.session.age} years old)`);
+            ctx.scene.step = 3; // FIX
           }
+          ctx.scene.next();
+          ctx.reply('Отлично!\nВведите номер вашей автошколы из списка:\n');
+          // GET lists autoschool
         },
-        (ctx) => {
+        (ctx) => {  // 2
+          ctx.session.school = ctx.message.text;
+          ctx.scene.leave();
+          ctx.reply(`Спасибо, теперь нам необходимо передать информацию администратору вашей автошколы,
+            после подтверждения информации вы получите доступ к функциям.\n
+            Об изменении статуса мы вам сообщим.`);
+        },
+        (ctx) => {  // 3
           console.log(ctx.scene.step);
           ctx.scene.leave();
           ctx.reply('MEOW');
         },
-        (ctx) => {
-          console.log(ctx.scene.step);
-          ctx.scene.leave();
-          ctx.reply('GAV');
+        (ctx) => {  // 4
+          
         });
 
       this.welcome = new Scene('welcome', 
@@ -52,7 +52,7 @@ class Scenes {
       });
 
       
-      this.registerStage = new Stage(this.register);
+      this.registerStage = new Stage(this.registerUser);
     } 
 };
 
