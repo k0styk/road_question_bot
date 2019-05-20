@@ -3,7 +3,7 @@ const Stage = require('node-vk-bot-api/lib/stage');
 const Scene = require('node-vk-bot-api/lib/scene');
 const Markup = require('node-vk-bot-api/lib/markup');
 const pg = require();
-const register = require('register.js');
+const register = require('./register');
 
 class Scenes {
   
