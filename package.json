@@ -4,8 +4,8 @@
   "description": "",
   "main": "ecosystem.config.js",
   "dependencies": {
-    "node-vk-bot-api": "^2.4.10",
-    "pg-promise": "^8.6.5"
+    "knex": "^0.17.0-next3",
+    "node-vk-bot-api": "^2.4.10"
   },
   "devDependencies": {},
   "scripts": {
