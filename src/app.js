@@ -18,23 +18,36 @@ bot.command('/start', (ctx) => {
     Укажите, пожалуйста, какое действие вам необходимо?\n
     1. Регистрация автошколы\n2. Регистрация пользователя автошколы\n3. Другое(вопрос по ПДД)`, null, Markup.keyboard(
       [
-        Markup.button('Автошкола','default', { startData: 1}),
         Markup.button('Пользователь','primary', { startData: 2}),
+        Markup.button('Автошкола','default', { startData: 1}),
         Markup.button('Другое','default', { startData: 3})
       ]
     )
     .oneTime())
 });
 
-bot.command('/register', (ctx) => {
-  ctx.scene.enter('registerUser');
-});
+// bot.command('/register', (ctx) => {
+  
+// });
 
 bot.on((ctx) => {
   log(" \"on\" event");
   if(ctx.message.payload) {
     const payload = JSON.parse(ctx.message.payload);
-    console.log(payload);
+    if(payload.startData) {
+      switch(payload.startData) {
+        case 1: 
+          ctx.scene.enter('registerSchool');
+          break;
+        case 2:
+          ctx.scene.enter('registerUser');
+          break;
+        case 3:
+          // TODO FAQ
+          break;
+      }
+    }
+
   } 
 })
 
