@@ -24,6 +24,9 @@ const registerUser = new Scene('registerUser',
           db.getListRoadSchools()
             .then(data => {
               console.log(data);
+            })
+            .catch(err => {
+              console.error(err);
             });
           ctx.reply('Отлично!\nВведите номер вашей автошколы из списка:\n');
           // GET lists autoschool
