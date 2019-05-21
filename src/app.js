@@ -3,10 +3,9 @@ const VkBot = require('node-vk-bot-api');
 const scenes = require('./scenes/scenes');
 const Session = require('node-vk-bot-api/lib/session');
 const Markup = require('node-vk-bot-api/lib/markup');
-
 const bot = new VkBot(config.getValue('token'));
-
 const session = new Session();
+
 bot.use(session.middleware());
 bot.use(scenes.registerUserStage.middleware());
 bot.use(scenes.registerSchoolStage.middleware());
@@ -51,6 +50,14 @@ bot.on((ctx) => {
 function log(message) {
   console.log(new Date().toLocaleTimeString()+": "+message);
 }
+
+const db = require('./database/dbConnector');
+
+bot.command('/test', (ctx) => {
+  log("test command");
+  db.getListRoadSchools()
+    .then(data => console.log(data));
+});
 
 bot.startPolling();
 log("Bot started");
