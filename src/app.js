@@ -6,8 +6,6 @@ const Markup = require('node-vk-bot-api/lib/markup');
 const bot = new VkBot(config.getValue('token'));
 const session = new Session();
 
-console.dir(scenes);
-
 bot.use(session.middleware());
 bot.use(scenes.registerUserStage.middleware());
 bot.use(scenes.registerSchoolStage.middleware());
@@ -27,12 +25,9 @@ bot.command('/start', (ctx) => {
     .oneTime())
 });
 
-const db = require('./database/dbConnector');
-
 bot.command('/test', (ctx) => {
   log("test command");
-  db.getListRoadSchools()
-    .then(data => console.log(data));
+  ctx.scene.enter('registerUser');
 });
 
 
