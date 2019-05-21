@@ -45,6 +45,7 @@ bot.on((ctx) => {
     console.log(payload);
     // First message
     if(payload.startData) {
+      console.dir(ctx.scene);
       switch(payload.startData) {
         case 1:
           ctx.scene.enter('registerSchool');
