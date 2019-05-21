@@ -1,6 +1,6 @@
 const Scene = require('node-vk-bot-api/lib/scene');
 const Markup = require('node-vk-bot-api/lib/markup');
-const db = require('./database/dbConnector');
+const db = require('../database/dbConnector');
 
 const registerUser = new Scene('registerUser',
         (ctx) => {  // 0
