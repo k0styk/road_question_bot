@@ -35,8 +35,9 @@ bot.command('/test', (ctx) => {
   }
 });
 
-
-
+// .sendMessage(userId, message, attachment, keyboard, sticker)
+// // Simple usage
+// bot.sendMessage(145003487, 'Hello!', 'photo1_1')
 
 bot.on((ctx) => {
   log(" \"on\" event");
@@ -59,12 +60,18 @@ bot.on((ctx) => {
       }
     }
 
+  } else {
+    console.dir(ctx);
   }
 })
 
 function log(message) {
   console.log(new Date().toLocaleTimeString()+": "+message);
 }
+
+const interval = setInterval(() => {
+
+}, 1000);
 
 bot.startPolling();
 log("Bot started");

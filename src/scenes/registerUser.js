@@ -17,24 +17,26 @@ const registerUser = new Scene('registerUser',
         (ctx) => {  // 1
           const payload = JSON.parse(ctx.message.payload);
           ctx.session.isStudent = payload.user == 'student' ? true : false;
-          console.log(payload);
           if(ctx.session.isStudent) {
             ctx.scene.step = 3; // FIX
           }
           ctx.scene.next();
-          console.log("nextScene");
-          // db.getListRoadSchools()
-          //   .then(data => {
-          //     console.log(data);
-          //   });
-          ctx.reply('Отлично!\nВведите номер вашей автошколы из списка:\n');
+          let schools = [];
+          db.getListRoadSchools()
+            .then(data => {
+              schools.push(data);
+            });
+          ctx.reply(`Отлично!\nВведите номер вашей автошколы из списка:\n${schools.map((val,index) => {
+            return `${index+1}. Школа: ${val.Name} - ${val.City}`
+          }).join('\n')}`);
         },
         (ctx) => {  // 2
           ctx.session.school = ctx.message.text;
+          ctx.session.alertAdmin = true;
           ctx.scene.leave();
           ctx.reply(`Спасибо, теперь нам необходимо передать информацию администратору вашей автошколы,
             после подтверждения информации вы получите доступ к функциям.\n
-            Об изменении статуса мы вам сообщим.`);
+            Об изменении статуса я вам сообщу :)`);
         },
         (ctx) => {  // 3
           console.log(ctx.scene.step);
