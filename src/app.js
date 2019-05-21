@@ -8,7 +8,8 @@ const bot = new VkBot(config.getValue('token'));
 
 const session = new Session();
 bot.use(session.middleware());
-bot.use(scenes.registerStage.middleware());
+bot.use(scenes.registerUserStage.middleware());
+bot.use(scenes.registerSchoolStage.middleware());
 
 bot.command('/start', (ctx) => {
   log("Start command");
