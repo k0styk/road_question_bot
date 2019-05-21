@@ -40,6 +40,7 @@ bot.on((ctx) => {
   log(" \"on\" event");
   if(ctx.message.payload) {
     const payload = JSON.parse(ctx.message.payload);
+    console.log(payload);
     // First message
     if(payload.startData) {
       switch(payload.startData) {
