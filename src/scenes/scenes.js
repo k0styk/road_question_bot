@@ -5,14 +5,11 @@ const registerSchool = require('./registerSchool');
 class Scenes {
   
   constructor() {
-      this.registerUserStage = null;
-      this.registerSchoolStage = null;
-
+      this.stages = null;
     } 
 };
 
 let myScenes = new Scenes();
-myScenes.registerUserStage = new Stage(registerUser);
-// myScenes.registerSchoolStage = new Stage(registerSchool);
+myScenes.stages = new Stage(registerUser, registerSchool);
 
 module.exports = myScenes;
