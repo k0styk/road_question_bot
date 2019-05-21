@@ -1,5 +1,6 @@
 const Scene = require('node-vk-bot-api/lib/scene');
 const Markup = require('node-vk-bot-api/lib/markup');
+const db = require('./database/dbConnector');
 
 const registerUser = new Scene('registerUser',
         (ctx) => {  // 0
@@ -20,6 +21,10 @@ const registerUser = new Scene('registerUser',
             ctx.scene.step = 3; // FIX
           }
           ctx.scene.next();
+          db.getListRoadSchools()
+            .then(data => {
+              console.log(data);
+            });
           ctx.reply('Отлично!\nВведите номер вашей автошколы из списка:\n');
           // GET lists autoschool
         },
