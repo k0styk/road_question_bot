@@ -4,24 +4,12 @@ const Markup = require('node-vk-bot-api/lib/markup');
 const registerSchool = new Scene('registerSchool',
         (ctx) => {  // 0
           ctx.scene.next();
-          ctx.reply('Для регистрации нам необходимы данные о вас:\nВы являетесь учеником или сотрудником?', 
-          null, Markup.keyboard(
-            [
-              Markup.button('Ученик','primary', { user: 'student'}),
-              Markup.button('Сотрудник','default', {user: 'staff'})
-            ]
-          )
-          .oneTime());
+          ctx.reply('Для регистрации нам необходимы данные о вас:\nВы являетесь учеником или сотрудником?');
         },
         (ctx) => {  // 1
-          const payload = JSON.parse(ctx.message.payload);
-          ctx.session.isStudent = payload.user == 'student' ? true : false;
-          if(ctx.session.isStudent) {
-            ctx.scene.step = 3; // FIX
-          }
+          const payload = JSON.parse(ctx.message.payload);          
           ctx.scene.next();
           ctx.reply('Отлично!\nВведите номер вашей автошколы из списка:\n');
-          // GET lists autoschool
         },
         (ctx) => {  // 2
           ctx.session.school = ctx.message.text;

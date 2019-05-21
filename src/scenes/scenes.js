@@ -13,6 +13,6 @@ class Scenes {
 
 let myScenes = new Scenes();
 myScenes.registerUserStage = new Stage(registerUser);
-myScenes.registerSchoolStage = new Stage(registerSchool);
+// myScenes.registerSchoolStage = new Stage(registerSchool);
 
 module.exports = myScenes;

@@ -8,7 +8,7 @@ const session = new Session();
 
 bot.use(session.middleware());
 bot.use(scenes.registerUserStage.middleware());
-bot.use(scenes.registerSchoolStage.middleware());
+// bot.use(scenes.registerSchoolStage.middleware());
 
 bot.command('/start', (ctx) => {
   log("Start command");
@@ -27,7 +27,13 @@ bot.command('/start', (ctx) => {
 
 bot.command('/test', (ctx) => {
   log("test command");
-  ctx.scene.enter('registerUser');
+  try
+  {
+    ctx.scene.enter('registerUser');
+  }
+  catch(err) {
+    console.error(err);
+  }
 });
 
 

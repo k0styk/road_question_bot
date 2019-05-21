@@ -23,13 +23,10 @@ const registerUser = new Scene('registerUser',
           }
           ctx.scene.next();
           console.log("nextScene");
-          // db.getListRoadSchools()
-          //   .then(data => {
-          //     console.log(data);
-          //   })
-          //   .catch(err => {
-          //     console.error(err);
-          //   });
+          db.getListRoadSchools()
+            .then(data => {
+              console.log(data);
+            });
           ctx.reply('Отлично!\nВведите номер вашей автошколы из списка:\n');
         },
         (ctx) => {  // 2
