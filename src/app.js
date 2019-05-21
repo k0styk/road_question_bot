@@ -1,7 +1,6 @@
 const config = require('./../config/config.js');
 const VkBot = require('node-vk-bot-api');
-const Scenes = require('./scenes/scenes');
-const scenes = new Scenes();
+const scenes = require('./scenes/scenes');
 const Session = require('node-vk-bot-api/lib/session');
 const Markup = require('node-vk-bot-api/lib/markup');
 
@@ -16,7 +15,7 @@ bot.command('/start', (ctx) => {
   ctx.reply(`Здравствуйте!\n
     Я виртуальный помощник группы. Буду помогать вам взаимодействовать с нашим сервисом.\n
     Укажите, пожалуйста, какое действие вам необходимо?\n
-    1. Регистрация автошколы\n2. Регистрация пользователя автошколы\n3. Другое(вопрос по ПДД)`, null, Markup.keyboard(
+    1. Регистрация пользователя автошколы\n2. Регистрация автошколы\n3. Другое(вопрос по ПДД и др.)`, null, Markup.keyboard(
       [
         Markup.button('Пользователь','primary', { startData: 2}),
         Markup.button('Автошкола','default', { startData: 1}),
@@ -26,17 +25,14 @@ bot.command('/start', (ctx) => {
     .oneTime())
 });
 
-// bot.command('/register', (ctx) => {
-  
-// });
-
 bot.on((ctx) => {
   log(" \"on\" event");
   if(ctx.message.payload) {
     const payload = JSON.parse(ctx.message.payload);
+    // First message
     if(payload.startData) {
       switch(payload.startData) {
-        case 1: 
+        case 1:
           ctx.scene.enter('registerSchool');
           break;
         case 2:
@@ -48,7 +44,7 @@ bot.on((ctx) => {
       }
     }
 
-  } 
+  }
 })
 
 function log(message) {
@@ -59,7 +55,7 @@ bot.startPolling();
 log("Bot started");
 
 // Context {
-//  message: 
+//  message:
 //   { date: 1556766687,
 //     from_id: 95123545,
 //     id: 9,
