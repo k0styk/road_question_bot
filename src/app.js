@@ -25,6 +25,17 @@ bot.command('/start', (ctx) => {
     .oneTime())
 });
 
+const db = require('./database/dbConnector');
+
+bot.command('/test', (ctx) => {
+  log("test command");
+  db.getListRoadSchools()
+    .then(data => console.log(data));
+});
+
+
+
+
 bot.on((ctx) => {
   log(" \"on\" event");
   if(ctx.message.payload) {
@@ -50,14 +61,6 @@ bot.on((ctx) => {
 function log(message) {
   console.log(new Date().toLocaleTimeString()+": "+message);
 }
-
-const db = require('./database/dbConnector');
-
-bot.command('/test', (ctx) => {
-  log("test command");
-  db.getListRoadSchools()
-    .then(data => console.log(data));
-});
 
 bot.startPolling();
 log("Bot started");
