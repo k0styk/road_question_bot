@@ -21,14 +21,12 @@ const registerUser = new Scene('registerUser',
             ctx.scene.step = 3; // FIX
           }
           ctx.scene.next();
-          let schools = [];
           db.getListRoadSchools()
             .then(data => {
-              schools.push(data);
+              ctx.reply(`Отлично!\nВведите номер вашей автошколы из списка:\n${data.map((val,index) => {
+                return `${index+1}. Школа: ${val.Name} - ${val.City}`
+              }).join('\n')}`);
             });
-          ctx.reply(`Отлично!\nВведите номер вашей автошколы из списка:\n${schools.map((val,index) => {
-            return `${index+1}. Школа: ${val.Name} - ${val.City}`
-          }).join('\n')}`);
         },
         (ctx) => {  // 2
           ctx.session.school = ctx.message.text;
