@@ -6,6 +6,8 @@ const Markup = require('node-vk-bot-api/lib/markup');
 const bot = new VkBot(config.getValue('token'));
 const session = new Session();
 
+console.dir(scenes);
+
 bot.use(session.middleware());
 bot.use(scenes.registerUserStage.middleware());
 bot.use(scenes.registerSchoolStage.middleware());
