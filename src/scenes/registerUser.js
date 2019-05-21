@@ -17,10 +17,12 @@ const registerUser = new Scene('registerUser',
         (ctx) => {  // 1
           const payload = JSON.parse(ctx.message.payload);
           ctx.session.isStudent = payload.user == 'student' ? true : false;
+          console.log(payload);
           if(ctx.session.isStudent) {
             ctx.scene.step = 3; // FIX
           }
           ctx.scene.next();
+          console.log("nextScene");
           db.getListRoadSchools()
             .then(data => {
               console.log(data);
@@ -29,7 +31,6 @@ const registerUser = new Scene('registerUser',
               console.error(err);
             });
           ctx.reply('Отлично!\nВведите номер вашей автошколы из списка:\n');
-          // GET lists autoschool
         },
         (ctx) => {  // 2
           ctx.session.school = ctx.message.text;
