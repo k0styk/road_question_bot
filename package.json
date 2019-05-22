@@ -5,12 +5,16 @@
   "main": "ecosystem.config.js",
   "dependencies": {
     "knex": "^0.17.0-next3",
-    "node-vk-bot-api": "^2.4.10"
+    "node-vk-bot-api": "^2.4.10",
+    "pg": "^7.11.0",
+    "pm2": "^3.5.0"
   },
   "devDependencies": {},
   "scripts": {
     "test": "NODE_ENV=development node ./src/app.js",
-    "test_windows": "set NODE_ENV=development&&node src\\app.js" 
+    "test_windows": "set NODE_ENV=development&&node ./src/app.js",
+    "pm2": "pm2 start ecosystem.config.js",
+    "pm2_windows": "pm2 start winecosystem.config.js&&pm2 flush"
   },
   "author": "",
   "license": "ISC"

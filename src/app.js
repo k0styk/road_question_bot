@@ -3,8 +3,10 @@ const VkBot = require('node-vk-bot-api');
 const scenes = require('./scenes/scenes');
 const Session = require('node-vk-bot-api/lib/session');
 const Markup = require('node-vk-bot-api/lib/markup');
+const pm2 = require('pm2');
 const bot = new VkBot(config.getValue('token'));
 const session = new Session();
+const db = require('./database/dbConnector');
 
 bot.use(session.middleware());
 bot.use(scenes.stages.middleware());
@@ -14,7 +16,7 @@ bot.command('/start', (ctx) => {
   ctx.reply(`Здравствуйте!\n
     Я виртуальный помощник группы. Буду помогать вам взаимодействовать с нашим сервисом.\n
     Укажите, пожалуйста, какое действие вам необходимо?\n
-    1. Регистрация пользователя автошколы\n2. Регистрация автошколы\n3. Другое(вопрос по ПДД и др.)`, null, Markup.keyboard(
+    1. Регистрация пользователя автошколы\n2. Регистрация автошколы\n3. Другое`, null, Markup.keyboard(
       [
         Markup.button('Пользователь','primary', { startData: 2}),
         Markup.button('Автошкола','default', { startData: 1}),
@@ -43,10 +45,8 @@ bot.on((ctx) => {
   log(" \"on\" event");
   if(ctx.message.payload) {
     const payload = JSON.parse(ctx.message.payload);
-    console.log(payload);
     // First message
     if(payload.startData) {
-      console.dir(ctx.scene);
       switch(payload.startData) {
         case 1:
           ctx.scene.enter('registerSchool');
@@ -61,7 +61,7 @@ bot.on((ctx) => {
     }
 
   } else {
-    console.dir(ctx);
+
   }
 })
 
@@ -69,12 +69,39 @@ function log(message) {
   console.log(new Date().toLocaleTimeString()+": "+message);
 }
 
-const interval = setInterval(() => {
+// const interval = setInterval(() => {
 
-}, 1000);
+// }, 1000);
 
 bot.startPolling();
 log("Bot started");
+
+process.on('message', (packet) => {
+  console.log('### APP ###');
+  console.log(packet);
+
+  const data = packet.data;
+
+  if(data.registerTeacher) {
+    bot.sendMessage(95123545,'ПРИВЕТ');
+    db.getAdministratorsSchool(data.school)
+      .then(dt => {
+        for (let i = 0; i < dt.length; i++) {
+          let vk = dt[i]['vk_id'];
+          let link = 'https://vk.com/id'+data.user;
+          console.log('VK: '+vk);
+          bot.sendMessage(vk, `Здравствуйте! В системе хочет зарегестрироваться новый пользователь, необходимо ваше подтверждение :)\n
+            Пользователь: ${link}`, null, Markup.keyboard(
+            [
+              Markup.button('OK', 'positive', { registerTeacher: true }),
+              Markup.button('НЕТ', 'negative', { registerTeacher: false }),
+            ]
+          ).oneTime())
+        }
+     })
+    .catch(err => console.error(err));
+  }
+});
 
 // Context {
 //  message:

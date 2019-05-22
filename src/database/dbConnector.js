@@ -26,6 +26,17 @@ class Connector {
     );
   }
 
+  getAdministratorsSchool(schoolId) {
+    return Promise.resolve(knex(this.options)
+      .select('vk_id')
+      .from('administrators')
+      .where({school_id: schoolId})
+      .then(data => {
+        return data;
+      })
+    );
+  }
+
 }
 
 const myConnector = new Connector();
