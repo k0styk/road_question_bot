@@ -26,6 +26,17 @@ class Connector {
     );
   }
 
+  getListGroupsFromSchool(schoolId) {
+    return Promise.resolve(knex(this.options)
+      .select('id','Name')
+      .from('groups')
+      .whereRaw('"school_id" = ?', schoolId)
+      .then(data => {
+        return data;
+      })
+    );
+  }
+
   getAdministratorsSchool(schoolId) {
     return Promise.resolve(knex(this.options)
       .select('vk_id')
@@ -37,6 +48,61 @@ class Connector {
     );
   }
 
+  getGroupId(groupName) {
+
+  }
+
+  getRoles() {
+    return Promise.resolve(knex(this.options)
+    .select('id','Name')
+    .from('roles')
+    .then(data => {
+      return data;
+    })
+  );
+  }
+
+  addAdministratorSchool(schoolId) {
+    
+  }
+
+  registerTeacherSchool(object) {
+    return Promise.resolve(knex(this.options)('instructors')
+      .returning('id')
+      .insert({ vk_id: object.vk_id}))
+      .then(dt=> {
+          return Promise.resolve(knex(this.options)('group_instructors')
+            .insert({
+              group_id: object.group_id,
+              instructor_id: dt[0]
+            }));
+      });
+  }
+
+  registerStudentSchool(object) {
+    return Promise.resolve(knex(this.options)('students')
+      .insert(object));
+  }
+
+  updateTeacherSchool(id, data) {
+    return Promise.resolve(knex(this.options)('instructors')
+      .whereRaw('"instructors"."vk_id" = ?', id)
+      .update(data)
+      .then(dt => {
+        return dt;
+      })
+    );
+  }
+
+  updateStudentSchool(id, data) {
+    return Promise.resolve(knex(this.options)('students')
+      .whereRaw('"students"."vk_id" = ?', id)
+      .update(data)
+      .then(dt => {
+        return dt;
+      })
+    );
+  }
 }
 
 const myConnector = new Connector();

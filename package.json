@@ -14,7 +14,8 @@
     "test": "NODE_ENV=development node ./src/app.js",
     "test_windows": "set NODE_ENV=development&&node ./src/app.js",
     "pm2": "pm2 start ecosystem.config.js",
-    "pm2_windows": "pm2 start winecosystem.config.js&&pm2 flush"
+    "pm2_windows": "pm2 start winecosystem.config.js&&pm2 flush",
+    "pm2_test_w": "pm2 start test.config.js"
   },
   "author": "",
   "license": "ISC"

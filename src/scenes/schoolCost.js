@@ -3,10 +3,10 @@ const Markup = require('node-vk-bot-api/lib/markup');
 const db = require('../database/dbConnector');
 const pm2 = require('pm2');
 
-const registerUser = new Scene('registerUser',
+const schoolCost = new Scene('schoolCost',
   (ctx) => {  // 0
     ctx.scene.next();
-    ctx.reply('Для регистрации нам необходимы данные о вас:\nВы являетесь учеником или сотрудником?',
+    ctx.reply('Привет',
       null, Markup.keyboard(
         [
           Markup.button('Ученик', 'primary', { user: 'student' }),
@@ -121,4 +121,4 @@ const registerUser = new Scene('registerUser',
   }
 );
 
-module.exports = registerUser;
+module.exports = schoolCost;

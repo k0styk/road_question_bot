@@ -7,32 +7,17 @@ const pm2 = require('pm2');
 const bot = new VkBot(config.getValue('token'));
 const session = new Session();
 const db = require('./database/dbConnector');
+const { WELCOME, VK_LINK, MESSAGE_ADMINISTRATOR } = require('./constants/constants');
 
 bot.use(session.middleware());
 bot.use(scenes.stages.middleware());
 
-bot.command('/start', (ctx) => {
-  log("Start command");
-  ctx.reply(`Здравствуйте!\n
-    Я виртуальный помощник группы. Буду помогать вам взаимодействовать с нашим сервисом.\n
-    Укажите, пожалуйста, какое действие вам необходимо?\n
-    1. Регистрация пользователя автошколы\n2. Регистрация автошколы\n3. Другое`, null, Markup.keyboard(
-      [
-        Markup.button('Пользователь','primary', { startData: 2}),
-        Markup.button('Автошкола','default', { startData: 1}),
-        Markup.button('Другое','default', { startData: 3})
-      ]
-    )
-    .oneTime())
-});
-
 bot.command('/test', (ctx) => {
   log("test command");
-  try
-  {
+  try {
     ctx.scene.enter('registerUser');
   }
-  catch(err) {
+  catch (err) {
     console.error(err);
   }
 });
@@ -43,11 +28,24 @@ bot.command('/test', (ctx) => {
 
 bot.on((ctx) => {
   log(" \"on\" event");
-  if(ctx.message.payload) {
+  console.log(ctx);
+  if (ctx.message.payload) {
     const payload = JSON.parse(ctx.message.payload);
+    if (payload.command) {
+      if (payload.command == 'start') {
+        log("Start command");
+        ctx.reply(WELCOME, null, Markup.keyboard(
+          [
+            Markup.button('Пользователь', 'primary', { startData: 2 }),
+            Markup.button('Автошкола', 'default', { startData: 1 }),
+            Markup.button('Другое', 'default', { startData: 3 })
+          ]
+        ).oneTime())
+      }
+    }
     // First message
-    if(payload.startData) {
-      switch(payload.startData) {
+    if (payload.startData) {
+      switch (payload.startData) {
         case 1:
           ctx.scene.enter('registerSchool');
           break;
@@ -59,19 +57,12 @@ bot.on((ctx) => {
           break;
       }
     }
-
-  } else {
-
-  }
-})
+  } else { }
+});
 
 function log(message) {
-  console.log(new Date().toLocaleTimeString()+": "+message);
+  console.log(new Date().toLocaleTimeString() + ": " + message);
 }
-
-// const interval = setInterval(() => {
-
-// }, 1000);
 
 bot.startPolling();
 log("Bot started");
@@ -80,28 +71,47 @@ process.on('message', (packet) => {
   console.log('### APP ###');
   console.log(packet);
 
-  const data = packet.data;
+  if(packet.type == 'register:msg') {
+    const data = packet.data;
 
-  if(data.registerTeacher) {
-    bot.sendMessage(95123545,'ПРИВЕТ');
-    db.getAdministratorsSchool(data.school)
+    if(data.alert == 'teacher') {
+      // db.getAdministratorsSchool(data.school);
+    } else {
+      db.getAdministratorsSchool(data.school)
       .then(dt => {
         for (let i = 0; i < dt.length; i++) {
           let vk = dt[i]['vk_id'];
-          let link = 'https://vk.com/id'+data.user;
-          console.log('VK: '+vk);
-          bot.sendMessage(vk, `Здравствуйте! В системе хочет зарегестрироваться новый пользователь, необходимо ваше подтверждение :)\n
-            Пользователь: ${link}`, null, Markup.keyboard(
+          let link = VK_LINK + data.user;
+          const payloadOk = { registerTeacher: 'ok', id: data.user };
+          const payloadNo = { registerTeacher: 'no', id: data.user };
+          bot.sendMessage(vk, MESSAGE_ADMINISTRATOR + link, null, Markup.keyboard(
             [
-              Markup.button('OK', 'positive', { registerTeacher: true }),
-              Markup.button('НЕТ', 'negative', { registerTeacher: false }),
+              Markup.button('OK', 'positive', payloadOk),
+              Markup.button('НЕТ', 'negative', payloadNo),
             ]
           ).oneTime())
         }
-     })
-    .catch(err => console.error(err));
+      })
+      .catch(err => console.error(err));
+    }
   }
 });
+
+// pm2.sendDataToProcessId(1, {
+//   type: 'register:msg',
+//   data: {
+//     alert: ctx.session.isStudent? 'teacher':'admin',
+//     group: ctx.session.group,
+//     school: ctx.session.school,
+//     user: ctx.message.from_id,
+//   },
+//   topic: 'Register user' }, (err, res) => { 
+// });
+
+// process.on('uncaughtException', function (err) {
+//   console.log('Caught exception: ' + err);
+//   throw err;
+// });
 
 // Context {
 //  message:
