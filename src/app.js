@@ -7,7 +7,12 @@ const pm2 = require('pm2');
 const bot = new VkBot(config.getValue('token'));
 const session = new Session();
 const db = require('./database/dbConnector');
-const { WELCOME, VK_LINK, MESSAGE_ADMINISTRATOR } = require('./constants/constants');
+const { 
+  WELCOME, 
+  VK_LINK, 
+  MESSAGE_ADMINISTRATOR,
+  CONGRATS 
+} = require('./constants/constants');
 
 bot.use(session.middleware());
 bot.use(scenes.stages.middleware());
@@ -15,7 +20,10 @@ bot.use(scenes.stages.middleware());
 bot.command('/test', (ctx) => {
   log("test command");
   try {
-    ctx.scene.enter('registerUser');
+    db.getTeachersSchool(1)
+      .then(dt => {
+        console.log(dt);
+      });
   }
   catch (err) {
     console.error(err);
@@ -33,7 +41,6 @@ bot.on((ctx) => {
     const payload = JSON.parse(ctx.message.payload);
     if (payload.command) {
       if (payload.command == 'start') {
-        log("Start command");
         ctx.reply(WELCOME, null, Markup.keyboard(
           [
             Markup.button('Пользователь', 'primary', { startData: 2 }),
@@ -57,6 +64,18 @@ bot.on((ctx) => {
           break;
       }
     }
+    if(payload.registerStudent) {
+      db.updateStudentSchool(payload.id, {verified: true})
+      .then(dt=> {
+        bot.sendMessage(payload.id, CONGRATS);
+      });
+    }
+    if(payload.registerTeacher) {
+      db.updateTeacherSchool(payload.id, {verified: true})
+      .then(dt=> {
+        bot.sendMessage(payload.id, CONGRATS);
+      });
+    }
   } else { }
 });
 
@@ -75,7 +94,22 @@ process.on('message', (packet) => {
     const data = packet.data;
 
     if(data.alert == 'teacher') {
-      // db.getAdministratorsSchool(data.school);
+      db.getTeachersSchool(data.group)
+      .then(dt => {
+        console.log(dt);
+        for (let i = 0; i < dt.length; i++) {
+          let vk = dt[i]['vk_id'];
+          let link = VK_LINK + data.user;
+          const payloadOk = { registerStudent: 'ok', id: data.user };
+          const payloadNo = { registerStudent: 'no', id: data.user };
+          bot.sendMessage(vk, MESSAGE_ADMINISTRATOR + link, null, Markup.keyboard(
+            [
+              Markup.button('OK', 'positive', payloadOk),
+              Markup.button('НЕТ', 'negative', payloadNo),
+            ]
+          ).oneTime())
+        }
+      });
     } else {
       db.getAdministratorsSchool(data.school)
       .then(dt => {

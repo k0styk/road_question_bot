@@ -2,11 +2,21 @@ const Scene = require('node-vk-bot-api/lib/scene');
 const Markup = require('node-vk-bot-api/lib/markup');
 const db = require('../database/dbConnector');
 const pm2 = require('pm2');
+const { 
+  TEACHERorSTUDENT, 
+  ROADSCHOOLNUMBER, 
+  GROUPNUMBER, 
+  THANKYOU,
+  THANKYOU_LONG, 
+  HAVETIME,
+  ASKPHONE
+} = require('../constants/constants');
+
 
 const registerUser = new Scene('registerUser',
   (ctx) => {  // 0
     ctx.scene.next();
-    ctx.reply('Для регистрации нам необходимы данные о вас:\nВы являетесь учеником или сотрудником?',
+    ctx.reply(TEACHERorSTUDENT,
       null, Markup.keyboard(
         [
           Markup.button('Ученик', 'primary', { user: 'student' }),
@@ -22,7 +32,7 @@ const registerUser = new Scene('registerUser',
     db.getListRoadSchools()
       .then(dt => {
         ctx.session.schoolIds = dt.map(val => val.id);
-        ctx.reply(`Отлично!\nВведите номер вашей автошколы из списка:\n${dt.map((val, index) => {
+        ctx.reply(`${ROADSCHOOLNUMBER}${dt.map((val, index) => {
           return `${index + 1}. Школа: ${val.Name} - ${val.City}`
         }).join('\n')}`);
       });
@@ -33,7 +43,7 @@ const registerUser = new Scene('registerUser',
     db.getListGroupsFromSchool(ctx.session.school)
       .then(dt => {
         ctx.session.groupIds = dt.map(val => val.id);
-        ctx.reply(`Осталось немного :)\nВведите номер вашей группы из списка:\n${dt.map((val, index) => {
+        ctx.reply(`${GROUPNUMBER}${dt.map((val, index) => {
           return `${index + 1}. Группа: ${val.Name}`
         }).join('\n')}`);
       });
@@ -57,21 +67,23 @@ const registerUser = new Scene('registerUser',
     if (ctx.session.isStudent) {
       db.registerStudentSchool({
         group_id: ctx.session.group,
-        vk_id: ctx.message.from_id
+        vk_id: ctx.message.from_id,
+        register_date: new Date().toISOString(),
+        verified: false,
+        notification: false
       });
     } else {
       db.registerTeacherSchool({
         group_id: ctx.session.group,
-        vk_id: ctx.message.from_id
+        vk_id: ctx.message.from_id,
+        register_date: new Date().toISOString(),
+        verified: false,
+        notification: false
       });
     }
     ctx.scene.next();
-    ctx.reply(`Спасибо, теперь нам необходимо передать информацию администратору вашей автошколы,
-            после подтверждения информации вы получите доступ к функциям.\n
-            Об изменении статуса я вам сообщу :)`);
-    ctx.reply(`Пока есть время, продолжим заполнение анкеты :)
-      Укажите, пожалуйста, ваше ФИО(через пробел).
-      Пример: Иванов Иван Иванович`);
+    ctx.reply(THANKYOU_LONG);
+    ctx.reply(HAVETIME);
   },
   (ctx) => {  // 4
     ctx.session.name = ctx.message.text;
@@ -81,14 +93,13 @@ const registerUser = new Scene('registerUser',
         Name: ctx.session.name
       });
       ctx.reply(`Последний пункт!
-      Ваш номер телефона - это необходимо для срочной связи руководства с вами.`);
+      ${ASKPHONE}`);
     } else {
       db.updateTeacherSchool(ctx.message.from_id, {
         Name: ctx.session.name
       });
-      ctx.reply(`Ваш номер телефона - это необходимо для срочной связи руководства с вами.`);
+      ctx.reply(ASKPHONE);
     }
-
   },
   (ctx) => {  // 5
     ctx.session.phone = ctx.message.text;
@@ -97,7 +108,7 @@ const registerUser = new Scene('registerUser',
       db.updateStudentSchool(ctx.message.from_id, {
         phone: ctx.session.phone
       });
-      ctx.reply(`Спасибо за информацию!`);
+      ctx.reply(THANKYOU);
     } else {
       ctx.scene.next();
       db.updateTeacherSchool(ctx.message.from_id, {
@@ -117,7 +128,7 @@ const registerUser = new Scene('registerUser',
     db.updateTeacherSchool(ctx.message.from_id, {
       role_id: ctx.session.role
     });
-    ctx.reply(`Спасибо за информацию!`);
+    ctx.reply(THANKYOU);
   }
 );
 
