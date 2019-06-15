@@ -1,16 +1,7 @@
 module.exports = {
   apps : [{
-    name      : 'vk_bot_road',
-    script    : './src/app.js',
-    env: {
-      NODE_ENV: 'development'
-    },
-    env_production : {
-      NODE_ENV: 'production'
-    }
-  }, {
-    name      : 'vk_bot_road_notify',
-    script    : './src/notify.js',
+    name      : 'test',
+    script    : './src/test3.js',
     env: {
       NODE_ENV: 'development'
     },

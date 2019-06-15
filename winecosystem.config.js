@@ -2,8 +2,10 @@ module.exports = {
   apps : [{
     name      : 'vk_bot_road',
     script    : './src/app.js',
+    watch: [],
+    watch_delay: 1000,
     env: {
-      NODE_ENV: 'development'
+      NODE_ENV: 'windev'
     },
     env_production : {
       NODE_ENV: 'production'
@@ -11,8 +13,10 @@ module.exports = {
   }, {
     name      : 'vk_bot_road_notify',
     script    : './src/notify.js',
+    watch: [],
+    watch_delay: 1000,
     env: {
-      NODE_ENV: 'development'
+      NODE_ENV: 'windev'
     },
     env_production : {
       NODE_ENV: 'production'
