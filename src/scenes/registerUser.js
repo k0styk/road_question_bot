@@ -2,16 +2,15 @@ const Scene = require('node-vk-bot-api/lib/scene');
 const Markup = require('node-vk-bot-api/lib/markup');
 const db = require('../database/dbConnector');
 const pm2 = require('pm2');
-const { 
-  TEACHERorSTUDENT, 
-  ROADSCHOOLNUMBER, 
-  GROUPNUMBER, 
+const {
+  TEACHERorSTUDENT,
+  ROADSCHOOLNUMBER,
+  GROUPNUMBER,
   THANKYOU,
-  THANKYOU_LONG, 
+  THANKYOU_LONG,
   HAVETIME,
   ASKPHONE
 } = require('../constants/constants');
-
 
 const registerUser = new Scene('registerUser',
   (ctx) => {  // 0
@@ -22,8 +21,8 @@ const registerUser = new Scene('registerUser',
           Markup.button('Ученик', 'primary', { user: 'student' }),
           Markup.button('Сотрудник', 'default', { user: 'staff' })
         ]
-      )
-        .oneTime());
+      ).oneTime()
+    );
   },
   (ctx) => {  // 1
     const payload = JSON.parse(ctx.message.payload);
@@ -54,7 +53,7 @@ const registerUser = new Scene('registerUser',
     pm2.sendDataToProcessId(1, {
       type: 'register:msg',
       data: {
-        alert: ctx.session.isStudent ? 'teacher' : 'admin',
+        alert: ctx.session.isStudent ? 'student' : 'teacher',
         group: ctx.session.group,
         school: ctx.session.school,
         user: ctx.message.from_id,

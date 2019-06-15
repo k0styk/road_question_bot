@@ -60,34 +60,7 @@ class Connector {
         return data;
       })
     );
-
   }
-
-  /*
-getHouse(houseId) {
-    return Promise.resolve(knex(this.options)('houses')
-      .select(
-        knex.raw('"houses"."id", \
-        "name", \
-        "address", \
-        "water_meter_type", \
-        "electricity_meter_type", \
-        "water_meter_types"."description" as "water_meter_description", \
-        "electricity_meter_types"."description" as "electricity_meter_description", \
-        "agreement_date", \
-        "notify_date" as "notify_date", \
-        "notify_enabled"'
-        )
-      )
-      .joinRaw('JOIN "water_meter_types" ON "water_meter_types"."id" = "houses".water_meter_type')
-      .joinRaw('JOIN "electricity_meter_types" ON "electricity_meter_types".id = "houses".electricity_meter_type')
-      .whereRaw('"houses"."id" = ?', houseId)
-      .then(data => {
-        return data;
-      })
-    );
-  }
-  */
 
   getGroupId(groupName) {
 
@@ -103,8 +76,129 @@ getHouse(houseId) {
     );
   }
 
-  addAdministratorSchool(schoolId) {
+  getTeachersNoVerified() {
+    return Promise.resolve(knex(this.options)('instructors')
+      .select(
+        knex.raw('"id",register_date"')
+      )
+      .whereRaw('"instructors"."verified" = ?', false)
+      .then(data => {
+        return data;
+      })
+    );
+  }
 
+  getAdministratorsNoVerified() {
+    return Promise.resolve(knex(this.options)('administrators')
+      .select(
+        knex.raw('"id",register_date"')
+      )
+      .whereRaw('"administrators"."verified" = ?', false)
+      .then(data => {
+        return data;
+      })
+    );
+  }
+
+  getStudentsNoVerified() {
+    return Promise.resolve(knex(this.options)('students')
+      .select(
+        knex.raw('"id","register_date"')
+      )
+      .whereRaw('"students"."verified" = ?', false)
+      .then(data => {
+        return data;
+      })
+    );
+  }
+
+  getNotificationFromTableByVkId(tableName, id) {
+    return Promise.resolve(knex(this.options)(tableName)
+    .select(knex.raw('"notification"'))
+    .whereRaw(`"${tableName}"."vk_id" = ?`, id)
+    .then(data => {
+      return data;
+    })
+    .catch(err=>{
+      return err;
+    })
+  );
+  }
+
+  getSchedule() {
+
+  }
+
+  getScheduleGroup() {
+    
+  }
+
+  getInstructorsIdFromNames(array) {
+    return Promise.resolve(knex(this.options)('instructors')
+      .select('id', 'Name')
+      .whereIn('Name', array)
+      .then(data => {
+        return data;
+      })
+      .catch(err => {
+        return err;
+      })
+    );
+  }
+
+  getStudentsIdFromNames(array) {
+    return Promise.resolve(knex(this.options)('students')
+      .select('id', 'Name')
+      .whereIn('Name', array)
+      .then(data => {
+        return data;
+      })
+      .catch(err => {
+        return err;
+      })
+    );
+  }
+
+  deleteAdminById(id) {
+    return Promise.resolve(knex(this.options)('administrators')
+      .select(knex.raw('"id"'))
+      .whereRaw('"administrators"."id" = ?', id)
+      .del()
+      .then(data => {
+        return {data: data, success: true};
+      })
+      .catch(err=>{
+        return {data: err, success: false};
+      })
+    );
+  }
+
+  deleteTeacherById(id) {
+    return Promise.resolve(knex(this.options)('instructors')
+      .select(knex.raw('"id"'))
+      .whereRaw('"instructors"."id" = ?', id)
+      .del()
+      .then(data => {
+        return {data: data, success: true};
+      })
+      .catch(err=>{
+        return {data: err, success: false};
+      })
+    );
+  }
+
+  deleteStudentById(id) {
+    return Promise.resolve(knex(this.options)('students')
+      .select(knex.raw('"id"'))
+      .whereRaw('"students"."id" = ?', id)
+      .del()
+      .then(data => {
+        return {data: data, success: true};
+      })
+      .catch(err=>{
+        return {data: err, success: false};
+      })
+    );
   }
 
   registerTeacherSchool(object) {
@@ -130,6 +224,17 @@ getHouse(houseId) {
       .insert(object));
   }
 
+  registerAdministrator(object) {
+    return Promise.resolve(knex(this.options)('administrators')
+      .insert(object));
+  }
+
+  registerSchool(object) {
+    return Promise.resolve(knex(this.options)('road_school')
+      .returning('id')
+      .insert(object));
+  }
+
   updateTeacherSchool(id, data) {
     return Promise.resolve(knex(this.options)('instructors')
       .whereRaw('"instructors"."vk_id" = ?', id)
@@ -149,6 +254,39 @@ getHouse(houseId) {
       })
     );
   }
+
+  updateAdministrator(id, data) {
+    return Promise.resolve(knex(this.options)('administrators')
+      .whereRaw('"administrators"."vk_id" = ?', id)
+      .update(data)
+      .then(dt => {
+        return dt;
+      })
+    );
+  }
+
+  updateNotificationTableByVkId(tableName, id, notify) {
+    return Promise.resolve(knex(this.options)(tableName)
+      .whereRaw(`"${tableName}"."vk_id" = ?`, id)
+      .update({ notification: notify})
+      .then(dt => {
+        return dt;
+      })
+    );
+  }
+
+  insertScheduleGroup(array) {
+    return Promise.resolve(knex(this.options)('schedule_group')
+      .returning('id')
+      .insert(array));
+  }
+
+  insertScheduleStudent(array) {
+    return Promise.resolve(knex(this.options)('schedule')
+      .returning('id')
+      .insert(array));
+  }
+
 }
 
 const myConnector = new Connector();
