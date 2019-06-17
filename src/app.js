@@ -13,7 +13,10 @@ const {
   MESSAGE_ADMINISTRATOR,
   CONGRATS,
   SOSORRY,
-  MENUS
+  MENUS,
+  NOTIFY_STUDENT_MSG,
+  NOTIFY_GROUP_MSG,
+  NOTIFY_INSTRUCTOR_MSG
 } = require('./constants/constants');
 
 bot.use(session.middleware());
@@ -38,8 +41,6 @@ bot.command('/test', (ctx) => {
 
 bot.on((ctx) => {
   log(" \"on\" event");
-  // console.log(ctx);
-  //console.log(ctx.message.attachments);
   if (ctx.message.payload) {
     const payload = JSON.parse(ctx.message.payload);
     if (payload.command) {
@@ -126,34 +127,34 @@ bot.on((ctx) => {
       }
     }
     if(payload.adminMenu) {
+      console.dir(ctx.scene);
       const { load, send } = payload.adminMenu;
       if(load) {
         ctx.scene.enter('downloadSchedule');        
       } else {
-
+        if(send === 'students') {
+          ctx.scene.enter('sendStudents');
+        }
+        if (send === 'instructors') {
+          ctx.scene.enter('sendInstructors');
+        }
       }
     }
   } else {
-    sendSorryStartMenu(ctx.message.from_id);
+    //sendSorryStartMenu(ctx.message.from_id);
   }
 });
 
-const path = require('path');
-const locationFile = path.join(__dirname,'../files/');
-const Excel = require('exceljs/modern.browser');
 bot.startPolling(()=> {
   log("Bot started");
-  // sendStudentMenu(546010258);
-  sendAdministratorMenu(95123545);
 });
-
 
 process.on('message', (packet) => {
   console.log('### APP ###');
   console.log(packet);
 
   if (packet.type === 'register:msg') {
-    const data = packet.data;
+    const {data} = packet;
 
     if (data.alert === 'student') {
       db.getTeachersSchool(data.group)
@@ -223,6 +224,22 @@ process.on('message', (packet) => {
     }
 
   }
+  if (packet.type === 'broadcast:msg') {
+    const { data } = packet;
+
+    bot.sendMessage(data.vk_id, `${data.Name}!\n${data.msg}`);
+  }
+  if (packet.type === 'notify:msg') {
+    const { data } = packet;
+    if(packet.topic === 'Notify students') {
+      // bot.sendMessage(data.vk_id, `${NOTIFY_STUDENT_MSG} ${data.date}`);
+    } else if(packet.topic === 'Notify instructors') {
+      // bot.sendMessage(data.vk_id, `${NOTIFY_INSTRUCTOR_MSG} ${data.date}`);
+    } else if(packet.topic === 'Notify groups') {
+      console.log(data);
+      // bot.sendMessage(data.vk_id, `${NOTIFY_GROUP_MSG} ${data.date}`);
+    }
+  }
 });
 
 function sendSorryStartMenu(vk) {
@@ -279,36 +296,3 @@ function sendAdministratorMenu(vk) {
 function log(message) {
   console.log(new Date().toLocaleTimeString() + ": " + message);
 }
-
-// pm2.sendDataToProcessId(1, {
-//   type: 'register:msg',
-//   data: {
-//     alert: ctx.session.isStudent? 'teacher':'admin',
-//     group: ctx.session.group,
-//     school: ctx.session.school,
-//     user: ctx.message.from_id,
-//   },
-//   topic: 'Register user' }, (err, res) => { 
-// });
-
-// process.on('uncaughtException', function (err) {
-//   console.log('Caught exception: ' + err);
-//   throw err;
-// });
-
-// Context {
-//  message:
-//   { date: 1556766687,
-//     from_id: 95123545,
-//     id: 9,
-//     out: 0,
-//     peer_id: 95123545,
-//     text: '/start',
-//     conversation_message_id: 7,
-//     fwd_messages: [],
-//     important: false,
-//     random_id: 0,
-//     attachments: [],
-//     is_hidden: false,
-//     type: 'message_new' },
-//

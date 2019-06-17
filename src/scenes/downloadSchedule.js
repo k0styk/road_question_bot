@@ -6,7 +6,9 @@ const Excel = require('exceljs/modern.browser');
 const db = require('../database/dbConnector');
 const {
   LOAD_FILE,
-  BLANK_SCHEDULE
+  BLANK_SCHEDULE,
+  FILE_ACCESS,
+  LIST_GROUP
 } = require('../constants/constants');
 const locationFile = path.join(__dirname,'../../files/');
 
@@ -14,17 +16,25 @@ const downloadSchedule = new Scene('downloadSchedule',
   (ctx) => {  // 0
     ctx.scene.next();
     ctx.reply(`${LOAD_FILE}\n\n${BLANK_SCHEDULE}`);
+
+    db.getGroupIds(ctx.message.from_id)
+      .then(dt=> {
+        ctx.reply(`${LIST_GROUP}\n${dt.map((val, index) => {
+          return `${index + 1}). ${val.Name} = ${val.id}`
+        }).join('\n')}`);
+      })
+
   },
   (ctx) => {  //
     ctx.scene.leave();
     const { doc } = ctx.message.attachments[0];
     const { title, url} = doc;
-    download(url, locationFile+title);
-    ctx.reply('Файл принят, после обработки инмормации, данные станут доступны всем');
+    download(url, locationFile+title, ctx.message.from_id);
+    ctx.reply(FILE_ACCESS);
   }
 );
 
-function download(url, dest, cb) {
+function download(url, dest, from_id,cb) {
   let file = fs.createWriteStream(dest);
   const request = https.get(url, function (res) {
     const { statusCode, headers } = res;
@@ -34,7 +44,7 @@ function download(url, dest, cb) {
         res2.pipe(file);
         file.on('finish', function () {
           file.close(cb);
-          loadDataFromFile(dest);
+          loadDataFromFile(dest, from_id);
         });
     });
     } else {
@@ -44,9 +54,8 @@ function download(url, dest, cb) {
   });
 }
 
-function loadDataFromFile(file) {
+function loadDataFromFile(file, vk_id) {
   const workbook = new Excel.Workbook();
-
 
   workbook.xlsx.readFile(file)
     .then(function () {
@@ -155,7 +164,7 @@ function loadDataFromFile(file) {
 
       });
 
-      db.getInstructorsIdFromNames(instructors)
+      db.getInstructorsIdFromNames(vk_id,instructors)
         .then(dt => {
           for (let i = 0, len = resultGroup.length; i < len; i++) {
             for (let j = 0, len = dt.length; j < len; j++) {
@@ -174,11 +183,11 @@ function loadDataFromFile(file) {
             }
           }
           db.insertScheduleGroup(resultGroup)
-            .then(dt => console.log(dt))
+            .then()
             .catch(er => console.log(er));
         })
         .then(() => {
-          db.getStudentsIdFromNames(students)
+          db.getStudentsIdFromNames(vk_id,students)
             .then(dt => {
               for (let i = 0, len = resultStudent.length; i < len; i++) {
                 for (let j = 0, len = dt.length; j < len; j++) {
@@ -190,7 +199,6 @@ function loadDataFromFile(file) {
               }
               db.insertScheduleStudent(resultStudent)
                 .then(dt => {
-                  console.log(dt)
                   fs.unlinkSync(file);
                 })
                 .catch(er => console.log(er));

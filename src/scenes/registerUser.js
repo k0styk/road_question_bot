@@ -59,8 +59,7 @@ const registerUser = new Scene('registerUser',
         user: ctx.message.from_id,
       },
       topic: 'Register user'
-    }, (err, res) => {
-    });
+    }, (err, res) => { });
 
     // Send Data to DB
     if (ctx.session.isStudent) {

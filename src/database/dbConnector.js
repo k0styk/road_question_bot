@@ -62,8 +62,54 @@ class Connector {
     );
   }
 
-  getGroupId(groupName) {
+  getInstructorsVkFromAdmin(admin_id) {
+    return Promise.resolve(knex(this.options)('instructors')
+      .select('instructors.vk_id', 'instructors.Name')
+      .join('group_instructors', {'group_instructors.instructor_id':'instructors.id'})
+      .join('groups', {'groups.id':'group_instructors.group_id'})
+      .join('road_school', {'road_school.id':'groups.school_id'})
+      .join('administrators', {'administrators.school_id':'road_school.id'})
+      .where('administrators.vk_id', admin_id)
+      .andWhere('instructors.verified', true)
+      .then(data => {
+        return data;
+      })
+      .catch(err => {
+        return err;
+      })
+    );
+  }
 
+  getStudentsVkFromAdmin(admin_id) {
+    return Promise.resolve(knex(this.options)('students')
+      .select('students.vk_id', 'students.Name')
+      .join('groups', {'groups.id':'students.group_id'})
+      .join('road_school', {'road_school.id':'groups.school_id'})
+      .join('administrators', {'administrators.school_id':'road_school.id'})
+      .where('administrators.vk_id', admin_id)
+      .andWhere('students.verified', true)
+      .then(data => {
+        return data;
+      })
+      .catch(err => {
+        return err;
+      })
+    );
+  }
+
+  getGroupIds(admin_id) {
+    return Promise.resolve(knex(this.options)('groups')
+      .select('groups.id', 'groups.Name')
+      .join('road_school', {'road_school.id':'groups.school_id'})
+      .join('administrators', {'administrators.school_id':'road_school.id'})
+      .where('administrators.vk_id', admin_id)
+      .then(data => {
+        return data;
+      })
+      .catch(err => {
+        return err;
+      })
+    );
   }
 
   getRoles() {
@@ -125,18 +171,75 @@ class Connector {
   );
   }
 
-  getSchedule() {
-
+  getScheduleStudents(time1, time2) {
+    return Promise.resolve(knex(this.options)('schedule')
+      .select('students.vk_id', 'schedule.date')
+      .join('students', { 'students.id': 'schedule.student_id' })
+      .where('students.verified', true)
+      .andWhere('students.notification', true)
+      .andWhere('schedule.date', '<=', time2)
+      .andWhere('schedule.date', '>', time1)
+      .then(data => {
+        return data;
+      })
+      .catch(err => {
+        return err;
+      })
+    )
   }
 
-  getScheduleGroup() {
-    
+  getScheduleInstructors(time1, time2) {
+    return Promise.resolve(knex(this.options)('schedule')
+      .select('instructors.vk_id', 'schedule.date')
+      .join('instructors', { 'instructors.id': 'schedule.instructor_id' })
+      .where('instructors.verified', true)
+      .andWhere('instructors.notification', true)
+      .andWhere('instructors.role_id', 2)
+      .andWhere('schedule.date', '<=', time2)
+      .andWhere('schedule.date', '>', time1)
+      .then(data => {
+        return data;
+      })
+    );
   }
 
-  getInstructorsIdFromNames(array) {
+  getScheduleGroup(time1, time2) {
+    return knex(this.options)('schedule_group')
+      .select('students.vk_id', 'schedule_group.date', 'schedule_group.id')
+      .join('groups', { 'groups.id': 'schedule_group.group_id' })
+      .join('students', { 'students.group_id': 'groups.id' })
+      .where('students.verified', true)
+      .andWhere('students.notification', true)
+      .andWhere('schedule_group.date', '<=', time2)
+      .andWhere('schedule_group.date', '>', time1)
+      .then(data => {
+        return knex(this.options)('schedule_group')
+          .select('instructors.vk_id', 'schedule_group.date', 'schedule_group.id')
+          .join('instructors', { 'instructors.id': 'schedule_group.instructor_id' })
+          .where('instructors.verified', true)
+          .andWhere('instructors.notification', true)
+          .andWhere('instructors.role_id', 1)
+          .andWhere('schedule_group.date', '<=', time2)
+          .andWhere('schedule_group.date', '>', time1)
+          .then(dt => {
+            return { students: data, instructors:dt};
+          })
+
+      })
+      .catch(err => {
+        return err;
+      })
+  }
+
+  getInstructorsIdFromNames(from_id, array) {
     return Promise.resolve(knex(this.options)('instructors')
-      .select('id', 'Name')
-      .whereIn('Name', array)
+      .select('instructors.id', 'instructors.Name')
+      .join('group_instructors', {'group_instructors.instructor_id':'instructors.id'})
+      .join('groups', {'groups.id':'group_instructors.group_id'})
+      .join('road_school', {'road_school.id':'groups.school_id'})
+      .join('administrators', {'administrators.school_id':'road_school.id'})
+      .whereIn('instructors.Name', array)
+      .andWhere('administrators.vk_id', from_id)
       .then(data => {
         return data;
       })
@@ -146,10 +249,14 @@ class Connector {
     );
   }
 
-  getStudentsIdFromNames(array) {
+  getStudentsIdFromNames(from_id, array) {
     return Promise.resolve(knex(this.options)('students')
-      .select('id', 'Name')
-      .whereIn('Name', array)
+      .select('students.id', 'students.Name')
+      .join('groups', {'groups.id':'students.group_id'})
+      .join('road_school', {'road_school.id':'groups.school_id'})
+      .join('administrators', {'administrators.school_id':'road_school.id'})
+      .whereIn('students.Name', array)
+      .andWhere('administrators.vk_id', from_id)
       .then(data => {
         return data;
       })
